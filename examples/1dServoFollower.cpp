@@ -42,25 +42,18 @@
 #include <SPI.h>  
 #include <Pixy.h>
 
-// Set the system mode to manual. We don't need the cloud for this code
-SYSTEM_MODE(MANUAL);
 
-// Create our pixy object
-Pixy pixy;
+SYSTEM_MODE(MANUAL);                // Set the system mode to manual. We don't need the cloud for this code
 
-// Create our servo object
-Servo myservo; 
+Pixy pixy;                          // Create our pixy object
+Servo myservo;                      // Create our servo object
 
-// Create an int to hold the servo's position 
-int pos;
+int pos = SERVO_DEFAULT_POSITION;   // Create an int to hold the servo's position
+int i = 0;                          // Create an int to count for frame skipping. Frame skipping is used to artificially slow down the pixy loop
 
 // Setup - Runs Once @ Startup
 void setup()
 {
-    // Initalize variables to their defaults
-    pos = SERVO_DEFAULT_POSITION;
-
-    // Object Startup Stuff
     Serial.begin(9600);             // Initalize the USB Serial port
     myservo.attach(SERVO_PIN);      // Attach the servo object to the servo pin
     myservo.write(pos);             // Move the servo to the default position
@@ -71,7 +64,6 @@ void setup()
 void loop()
 { 
     // Variable Creation 
-    int i = 0;                      // Create an int to count for frame skipping. Frame skipping is used to artificially slow down the pixy loop
     uint16_t blocks;                // Create an unsigned int to hold the number of found blocks
     char buf[50];                   // Create a buffer for printing over serial
 
