@@ -8,6 +8,8 @@
 // to follow an object. It uses a more advanced control algorithm to speed up
 // how fast it can close in on objects
 
+// Video: https://www.youtube.com/watch?v=q764IZ9fZNA
+
 // Setup: 
 // 1. Flash code to Spark Core
 // 2. Connect pixy to SparkCore via SPI interface
