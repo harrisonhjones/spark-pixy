@@ -35,66 +35,72 @@
 #define SERVO_MIN 20                // The furthest the servo can turn
 #define SERVO_STEPS 2               // How far the servo turns each update. If servo turns the wrong way make this negative
 #define OBJECT_TOLERANCE 10         // How many pixels off center the object can be
-#define FRAME_SKIP 5         // How many frames to skip (kind of))
+#define FRAME_SKIP 5                // How many frames to skip. Lower numbers cause faster response
 // End User Defined Defines
 
-
+// Include the two pixy libraries
 #include <SPI.h>  
 #include <Pixy.h>
 
+// Set the system mode to manual. We don't need the cloud for this code
 SYSTEM_MODE(MANUAL);
+
+// Create our pixy object
 Pixy pixy;
 
+// Create our servo object
 Servo myservo; 
-int pos = SERVO_DEFAULT_POSITION;    // variable to store the servo position
 
+// Create an int to hold the servo's position 
+int pos;
+
+// Setup - Runs Once @ Startup
 void setup()
 {
+    // Initalize variables to their defaults
+    pos = SERVO_DEFAULT_POSITION;
 
-  Serial.begin(9600);
-  myservo.attach(SERVO_PIN);  // attaches the servo on the A0 pin to the servo object
-  myservo.write(pos);
-  
-  while(!Serial.available());
-  Serial.println("Program Start");
-  
-  pixy.init();
+    // Object Startup Stuff
+    Serial.begin(9600);             // Initalize the USB Serial port
+    myservo.attach(SERVO_PIN);      // Attach the servo object to the servo pin
+    myservo.write(pos);             // Move the servo to the default position
+    pixy.init();                    // Initalize the pixy object
 }
 
+// Loop - Runs over and over
 void loop()
 { 
-  static int i = 0;
-  int j;
-  uint16_t blocks;
-  char buf[50]; 
-  
-  blocks = pixy.getBlocks();
-  
-  // sprintf(buf, "Detected %d:", blocks);
-  // Serial.println(buf);
-  
-  if (blocks)
-  {
-    i++;
-    
-    if (i%FRAME_SKIP==0)
+    // Variable Creation 
+    int i = 0;                      // Create an int to count for frame skipping. Frame skipping is used to artificially slow down the pixy loop
+    uint16_t blocks;                // Create an unsigned int to hold the number of found blocks
+    char buf[50];                   // Create a buffer for printing over serial
+
+    blocks = pixy.getBlocks();      // Do the pixy stuff. Grab the numbers of blocks the pixy finds
+
+    // If we have some blocks increment the frame counter (i) and if enough frames have passed move the servo if there is an error
+    if (blocks)
     {
-        if(pixy.blocks[0].x > (150 + OBJECT_TOLERANCE))
+    i++;
+        if (i%FRAME_SKIP==0)
         {
-            pos = pos + SERVO_STEPS;
-            if (pos > SERVO_MAX)
-                pos = SERVO_MAX;
+            // If the center of the first block (block 0) is outside of tolerance move the servo in the correct direction
+            if(pixy.blocks[0].x > (150 + OBJECT_TOLERANCE))
+            {
+                pos = pos + SERVO_STEPS;
+                if (pos > SERVO_MAX)
+                    pos = SERVO_MAX;
+            }
+            if(pixy.blocks[0].x < (150 - OBJECT_TOLERANCE))
+            {
+                pos = pos - SERVO_STEPS;
+                if (pos < SERVO_MIN)
+                    pos = SERVO_MIN;
+            }
+            // Actually move the servo and then print our some debug info
+            myservo.write(pos);
+            sprintf(buf, "\tObject X: %d & Servo Pos: %d", pixy.blocks[0].x, pos);
+            Serial.println(buf); 
         }
-        if(pixy.blocks[0].x < (150 - OBJECT_TOLERANCE))
-        {
-            pos = pos - SERVO_STEPS;
-            if (pos < SERVO_MIN)
-                pos = SERVO_MIN;
-        }
-        myservo.write(pos);
-        sprintf(buf, "\tObject X: %d & Servo Pos: %d", pixy.blocks[0].x, pos);
-        Serial.println(buf); 
-    }
-  }  
+    }  
 }
 
