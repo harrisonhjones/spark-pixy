@@ -19,8 +19,7 @@
 // 6. Make sure to the Pixy is running the "default program". You should be able
 // to see object bounding boxes but not the actual image from the pixy. Example
 // works best when only 1 object is detected by the pixy.
-// 7. Connect to the Spark Core over serial and press anykey. The program will 
-// start.
+// 7. Connect to the Spark Core over serial.
 // 8. Place the defined object in front of the pixy. The Pixy should move toward
 // the object using the servo. Check the PixyMon software to see if a bounding 
 // box is also visible
